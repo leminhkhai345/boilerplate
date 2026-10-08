@@ -15,9 +15,9 @@ FROM node:22-slim
 ARG PORT=80
 WORKDIR /usr/src/app
 
+COPY backend /usr/src/app
 COPY --from=dist /app/dist /usr/src/app/dist
 COPY --from=node_modules /app/node_modules /usr/src/app/node_modules
-COPY backend /usr/src/app
 
 EXPOSE $PORT
 

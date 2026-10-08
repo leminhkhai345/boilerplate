@@ -1,7 +1,12 @@
 import 'reflect-metadata';
+import 'tsconfig-paths/register';
 import type { DataSourceOptions } from 'typeorm';
 import { DataSource } from 'typeorm';
-import { SnakeNamingStrategy } from 'shared/configuration/snake-naming.strategy';
+import { SnakeNamingStrategy } from '../../configuration/snake-naming.strategy';
+
+try {
+  (process as any).loadEnvFile?.();
+} catch {}
 
 export const AppDataSource = new DataSource({
   type: (process.env.DB_TYPE as any) || 'postgres',
