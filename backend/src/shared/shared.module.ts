@@ -3,6 +3,8 @@ import { ConfigModule } from '@nestjs/config';
 import { ApiConfigService } from './services/api-config.service';
 import { TypeormModule } from './infra/typeorm/typeorm.module';
 import { RabbitmqModule } from './infra/rabbitmq/rabbitmq.module';
+import { MESSAGE_BROKER_DI_TOKEN } from './di-tokens/message-broker.di-token';
+import { RabbitmqRepository } from './infra/rabbitmq/rabbitmq.repository';
 
 @Global()
 @Module({
@@ -14,7 +16,18 @@ import { RabbitmqModule } from './infra/rabbitmq/rabbitmq.module';
     TypeormModule,
     RabbitmqModule,
   ],
-  providers: [ApiConfigService],
-  exports: [ApiConfigService, TypeormModule, RabbitmqModule],
+  providers: [
+    ApiConfigService,
+    {
+      provide: MESSAGE_BROKER_DI_TOKEN.CONSUMER,
+      useClass: RabbitmqRepository,
+    },
+  ],
+  exports: [
+    ApiConfigService,
+    TypeormModule,
+    RabbitmqModule,
+    MESSAGE_BROKER_DI_TOKEN.CONSUMER,
+  ],
 })
 export class SharedModule {}
