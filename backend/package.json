@@ -5,6 +5,9 @@
   "author": "",
   "private": true,
   "license": "MIT",
+  "engines": {
+    "node": ">=24.18.0"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\"",
@@ -59,3 +62,4 @@
     "typescript": "^6.0.2"
   }
 }
+

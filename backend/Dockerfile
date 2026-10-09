@@ -1,4 +1,4 @@
-FROM node:22-slim AS dist
+FROM node:24.18.0-slim AS dist
 
 WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
@@ -6,12 +6,12 @@ RUN npm ci
 COPY backend .
 RUN npm run build  # Chạy build với NestJS
 
-FROM node:22-slim AS node_modules
+FROM node:24.18.0-slim AS node_modules
 WORKDIR /app
 COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
 
-FROM node:22-slim
+FROM node:24.18.0-slim
 ARG PORT=80
 WORKDIR /usr/src/app
 
