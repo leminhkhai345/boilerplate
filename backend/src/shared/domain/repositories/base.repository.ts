@@ -1,7 +1,7 @@
 import { BaseEntity } from '../entities/base.entity';
 import {
-  PaginationOptions,
-  PaginationResult,
+  OffsetPaginationOptions,
+  PaginatedResult,
 } from '../pagination/pagination.interface';
 import { Uuid } from '../value-objects/uuid.vo';
 
@@ -10,7 +10,7 @@ export interface BaseRepository<T extends BaseEntity> {
 
   findAll(): Promise<T[]>;
 
-  findPaginated(options: PaginationOptions): Promise<PaginationResult<T>>;
+  findPaginated(options: OffsetPaginationOptions): Promise<PaginatedResult<T>>;
 
   findById(id: Uuid): Promise<T | null>;
 

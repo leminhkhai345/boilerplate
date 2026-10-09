@@ -7,10 +7,13 @@ import { SampleTypeormEntity } from './sample.typeorm-entity';
 import { SampleMapper } from '../mappers/sample.mapper';
 import { Uuid } from 'shared/domain/value-objects/uuid.vo';
 import {
-  PaginationOptions,
-  PaginationResult,
+  OffsetPaginationOptions,
+  PaginatedResult,
 } from 'shared/domain/pagination/pagination.interface';
-import { paginate } from 'shared/infra/typeorm/pagination.helper';
+import {
+  createOffsetPaginationResult,
+  paginate,
+} from 'shared/infra/typeorm/pagination.helper';
 
 @Injectable()
 export class TypeOrmSampleRepository implements SampleRepository {
@@ -43,26 +46,18 @@ export class TypeOrmSampleRepository implements SampleRepository {
   }
 
   async findPaginated(
-    options: PaginationOptions,
-  ): Promise<PaginationResult<SampleEntity>> {
+    options: OffsetPaginationOptions,
+  ): Promise<PaginatedResult<SampleEntity>> {
     const qb = this.repository
       .createQueryBuilder('sample')
       .where('sample.isDeleted = :isDeleted', { isDeleted: false })
       .orderBy('sample.createdAt', 'DESC');
 
-    const { data, total } = await paginate(qb, options);
-    const limit = options.limit > 0 ? options.limit : 10;
-    const totalPages = Math.ceil(total / limit);
+    const { data, totalItems } = await paginate(qb, options);
 
-    return {
-      items: data.map((r) => SampleMapper.toDomain(r)),
-      total,
-      page: options.page,
-      limit: options.limit,
-      totalPages,
-      hasNext: options.page < totalPages,
-      hasPrev: options.page > 1,
-    };
+    return createOffsetPaginationResult(data, totalItems, options, (raw) =>
+      SampleMapper.toDomain(raw),
+    );
   }
 
   async delete(id: Uuid): Promise<void> {
