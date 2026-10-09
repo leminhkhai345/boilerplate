@@ -1,0 +1,3 @@
+﻿export const MESSAGE_BROKER_DI_TOKEN = {
+  CONSUMER: Symbol('MESSAGE_BROKER_CONSUMER'),
+};
