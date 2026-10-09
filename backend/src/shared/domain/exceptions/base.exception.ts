@@ -2,6 +2,7 @@ export abstract class BaseException extends Error {
   constructor(
     message: string,
     public readonly statusCode: number = 400,
+    public readonly code: string = 'BAD REQUEST',
   ) {
     super(message);
     this.name = this.constructor.name;

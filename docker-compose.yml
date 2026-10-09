@@ -6,12 +6,12 @@ services:
     image: app_backend
     container_name: app_backend
     env_file:
-      - .env.example
+      - backend/.env.example
     environment:
       DB_HOST: app_database
       DB_PORT: 5432
     ports:
-      - "${PORT:-3000}:${PORT:-3000}"
+      - "${PORT:-3001}:${PORT:-3001}"
     depends_on:
       - app_database
 

@@ -12,7 +12,7 @@ COPY backend/package.json backend/package-lock.json ./
 RUN npm ci
 
 FROM node:24.18.0-slim
-ARG PORT=80
+ARG PORT=3001
 WORKDIR /usr/src/app
 
 COPY backend /usr/src/app

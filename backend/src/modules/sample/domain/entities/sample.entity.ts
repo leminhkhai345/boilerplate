@@ -8,6 +8,7 @@ export interface CreateSampleProps {
   description?: string;
   createdAt?: Date;
   updatedAt?: Date;
+  isDeleted?: boolean;
 }
 
 export class SampleEntity extends BaseEntity {
@@ -20,8 +21,9 @@ export class SampleEntity extends BaseEntity {
     description: string | undefined,
     createdAt: Date,
     updatedAt: Date,
+    isDeleted: boolean = false,
   ) {
-    super(id, createdAt, updatedAt);
+    super(id, createdAt, updatedAt, isDeleted);
     this._title = title;
     this._description = description;
   }
@@ -33,6 +35,7 @@ export class SampleEntity extends BaseEntity {
       props.description,
       props.createdAt ?? new Date(),
       props.updatedAt ?? new Date(),
+      props.isDeleted ?? false,
     );
   }
 

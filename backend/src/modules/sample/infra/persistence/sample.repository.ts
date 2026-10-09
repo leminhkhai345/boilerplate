@@ -20,7 +20,9 @@ export class TypeOrmSampleRepository implements SampleRepository {
   }
 
   async findById(id: Uuid): Promise<SampleEntity | null> {
-    const raw = await this.repository.findOne({ where: { id } });
+    const raw = await this.repository.findOne({
+      where: { id, isDeleted: false },
+    });
     if (!raw) {
       return null;
     }
@@ -29,12 +31,13 @@ export class TypeOrmSampleRepository implements SampleRepository {
 
   async findAll(): Promise<SampleEntity[]> {
     const records = await this.repository.find({
+      where: { isDeleted: false },
       order: { createdAt: 'DESC' },
     });
     return records.map((r) => SampleMapper.toDomain(r));
   }
 
   async delete(id: Uuid): Promise<void> {
-    await this.repository.delete(id);
+    await this.repository.update(id, { isDeleted: true });
   }
 }

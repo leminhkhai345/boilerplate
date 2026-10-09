@@ -9,14 +9,25 @@ import {
 import { Request, Response } from 'express';
 import { BaseException } from '../shared/domain/exceptions/base.exception';
 
+/**
+ * Standard Error Response envelope according to api-conventions.md §1 & §3.
+ * Client receives ONLY statusCode and code.
+ */
 interface ErrorResponsePayload {
   statusCode: number;
-  message: string;
-  error?: string;
-  details?: unknown;
-  timestamp: string;
-  path: string;
+  code: string;
 }
+
+const HTTP_STATUS_TO_DEFAULT_CODE: Record<number, string> = {
+  [HttpStatus.BAD_REQUEST]: 'BAD REQUEST',
+  [HttpStatus.UNAUTHORIZED]: 'INVALID TOKEN',
+  [HttpStatus.FORBIDDEN]: 'FORBIDDEN',
+  [HttpStatus.NOT_FOUND]: 'NOT FOUND',
+  [HttpStatus.CONFLICT]: 'CONFLICT',
+  [HttpStatus.UNPROCESSABLE_ENTITY]: 'VALIDATION FAILED',
+  [HttpStatus.TOO_MANY_REQUESTS]: 'RATE LIMIT EXCEEDED',
+  [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL ERROR',
+};
 
 @Catch()
 export class LoggingExceptionFilter implements ExceptionFilter {
@@ -28,70 +39,73 @@ export class LoggingExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let message = 'Internal server error';
-    let errorName = 'InternalServerError';
-    let details: unknown = undefined;
+    let code = 'INTERNAL ERROR';
+    let logMessage = 'Internal server error';
 
     // 1. Domain Exceptions (Clean Architecture BaseException)
     if (exception instanceof BaseException) {
       status = exception.statusCode || HttpStatus.BAD_REQUEST;
-      message = exception.message;
-      errorName = exception.name;
-      this.logger.warn(
-        `[DomainException] ${errorName} (${status}): ${message}`,
-      );
+      code =
+        exception.code ||
+        HTTP_STATUS_TO_DEFAULT_CODE[status] ||
+        'BAD REQUEST';
+      logMessage = `[DomainException] ${exception.name} (${status}) [${code}]: ${exception.message}`;
+      this.logger.warn(`${logMessage} - Path: ${request.url}`);
     }
     // 2. NestJS HttpExceptions (ValidationPipe, NotFoundException, etc.)
     else if (exception instanceof HttpException) {
       status = exception.getStatus();
-      errorName = exception.name;
-
       const exceptionResponse = exception.getResponse();
-      if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
+
+      if (
+        typeof exceptionResponse === 'object' &&
+        exceptionResponse !== null
+      ) {
         const resObj = exceptionResponse as Record<string, any>;
-        if (Array.isArray(resObj.message)) {
-          // Validation pipe returns message as string[]
-          message = 'Validation failed';
-          details = resObj.message;
+
+        // Handle ValidationPipe errors -> map to 422 VALIDATION FAILED
+        if (
+          status === HttpStatus.UNPROCESSABLE_ENTITY ||
+          (status === HttpStatus.BAD_REQUEST && Array.isArray(resObj.message))
+        ) {
+          status = HttpStatus.UNPROCESSABLE_ENTITY;
+          code = 'VALIDATION FAILED';
+          logMessage = `[ValidationException] (${status}) [${code}]: ${JSON.stringify(resObj.message)}`;
+        } else if (resObj.code && typeof resObj.code === 'string') {
+          code = resObj.code;
+          logMessage = `[HttpException] ${exception.name} (${status}) [${code}]: ${resObj.message || exception.message}`;
         } else {
-          message = resObj.message || exception.message;
-          details = resObj.error !== message ? resObj.error : undefined;
-        }
-        if (resObj.error && typeof resObj.error === 'string') {
-          errorName = resObj.error;
+          code = HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD REQUEST';
+          logMessage = `[HttpException] ${exception.name} (${status}) [${code}]: ${resObj.message || exception.message}`;
         }
       } else {
-        message = exceptionResponse;
+        code = HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD REQUEST';
+        logMessage = `[HttpException] ${exception.name} (${status}) [${code}]: ${String(exceptionResponse)}`;
       }
+
+      this.logger.warn(`${logMessage} - Path: ${request.url}`);
     }
     // 3. Unhandled Standard Errors & Unknown Exceptions
     else if (exception instanceof Error) {
-      errorName = exception.name;
-      message = exception.message;
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      code = 'INTERNAL ERROR';
       this.logger.error(
-        `[UnhandledException] ${exception.message}`,
+        `[UnhandledException] ${exception.message} - Path: ${request.url}`,
         exception.stack,
       );
-
-      // In production, mask internal error details
-      if (process.env.NODE_ENV === 'production') {
-        message = 'Internal server error';
-      }
     } else {
-      this.logger.error(`[UnknownException] ${String(exception)}`);
+      status = HttpStatus.INTERNAL_SERVER_ERROR;
+      code = 'INTERNAL ERROR';
+      this.logger.error(
+        `[UnknownException] ${String(exception)} - Path: ${request.url}`,
+      );
     }
 
+    // Client response strictly contains only statusCode and code per spec
     const errorPayload: ErrorResponsePayload = {
       statusCode: status,
-      message,
-      error: errorName,
-      timestamp: new Date().toISOString(),
-      path: request.url,
+      code,
     };
-
-    if (details !== undefined) {
-      errorPayload.details = details;
-    }
 
     response.status(status).json(errorPayload);
   }

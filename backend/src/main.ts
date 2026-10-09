@@ -1,6 +1,7 @@
-import { Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
+import { HttpStatus, Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
+import cookieParser from 'cookie-parser';
 import { AppModule } from './app.module';
 import { configLogging } from './shared/configuration/config-logging';
 import { configureSwagger } from './shared/configuration/config-swagger';
@@ -14,6 +15,9 @@ async function bootstrap() {
 
   const configService = app.select(SharedModule).get(ApiConfigService);
 
+  // Parse cookies (for HttpOnly refresh tokens)
+  app.use(cookieParser());
+
   // Global routing prefix
   app.setGlobalPrefix('api/v1', {
     exclude: [{ path: 'health', method: RequestMethod.GET }],
@@ -22,13 +26,14 @@ async function bootstrap() {
   // Enable CORS
   app.enableCors();
 
-  // Global validation pipe
+  // Global validation pipe (422 UNPROCESSABLE_ENTITY per api-conventions.md)
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
       whitelist: true,
       forbidNonWhitelisted: true,
       stopAtFirstError: false,
+      errorHttpStatusCode: HttpStatus.UNPROCESSABLE_ENTITY,
     }),
   );
 

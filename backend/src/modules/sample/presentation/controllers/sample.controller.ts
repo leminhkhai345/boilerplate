@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { CommandBus, QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ResponseCode } from 'shared/decorators/response-code.decorator';
 import { CreateSampleRequest } from '../request/create-sample.request';
 import { SampleResponseDto } from '../response/sample.response.dto';
 import { CreateSampleCommand } from '../../use-case/commands/create-sample.command';
@@ -26,6 +27,7 @@ export class SampleController {
 
   @Post()
   @HttpCode(HttpStatus.CREATED)
+  @ResponseCode('SAMPLE_CREATED')
   @ApiOperation({ summary: 'Create a new sample' })
   @ApiResponse({ status: 201, type: SampleResponseDto })
   async create(
@@ -38,6 +40,7 @@ export class SampleController {
   }
 
   @Get(':id')
+  @ResponseCode('SAMPLE_FETCHED')
   @ApiOperation({ summary: 'Get sample by ID' })
   @ApiResponse({ status: 200, type: SampleResponseDto })
   async getById(@Param('id') id: Uuid): Promise<SampleResponseDto> {

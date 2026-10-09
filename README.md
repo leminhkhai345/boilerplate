@@ -106,8 +106,8 @@ cd nest-clean-architecture-boilerplate
 docker-compose up --build -d
 ```
 
-- **Backend API**: `http://localhost:3000/api/v1`
-- **Swagger Docs**: `http://localhost:3000/swagger`
+- **Backend API**: `http://localhost:3001/api/v1`
+- **Swagger Docs**: `http://localhost:3001/swagger`
 - **PostgreSQL**: `localhost:5432` (User/Pass: `postgres`/`postgres`)
 
 ---
@@ -123,7 +123,7 @@ npm install
 #### 2. Cấu hình biến môi trường:
 Tạo file `.env` từ `.env.example`:
 ```bash
-cp ../.env.example .env
+cp .env.example .env
 ```
 Chỉnh sửa thông số kết nối Database cho phù hợp với máy của bạn.
 

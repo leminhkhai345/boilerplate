@@ -10,7 +10,7 @@ export class ApiConfigService {
   }
 
   get serverPort(): number {
-    return this.getNumber('PORT', 3000);
+    return this.getNumber('PORT', 3001);
   }
 
   get nodeEnv(): string {

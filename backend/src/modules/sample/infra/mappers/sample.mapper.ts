@@ -9,6 +9,7 @@ export class SampleMapper {
       description: raw.description,
       createdAt: raw.createdAt,
       updatedAt: raw.updatedAt,
+      isDeleted: raw.isDeleted,
     });
   }
 
@@ -19,6 +20,7 @@ export class SampleMapper {
     raw.description = entity.description;
     raw.createdAt = entity.createdAt;
     raw.updatedAt = entity.updatedAt;
+    raw.isDeleted = entity.isDeleted;
     return raw;
   }
 }
