@@ -28,4 +28,3 @@ export abstract class AbstractEntity {
   })
   isDeleted: boolean;
 }
-

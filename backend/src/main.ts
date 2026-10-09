@@ -1,4 +1,9 @@
-import { HttpStatus, Logger, RequestMethod, ValidationPipe } from '@nestjs/common';
+import {
+  HttpStatus,
+  Logger,
+  RequestMethod,
+  ValidationPipe,
+} from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import type { NestExpressApplication } from '@nestjs/platform-express';
 import cookieParser from 'cookie-parser';
@@ -47,8 +52,8 @@ async function bootstrap() {
   await app.listen(configService.serverPort);
 
   const appUrl = await app.getUrl();
-  Logger.log(`🚀 Application running on: ${appUrl}`);
-  Logger.log(`📚 Swagger documentation: ${appUrl}/swagger`);
+  Logger.log(`Application running on: ${appUrl}`);
+  Logger.log(`Swagger documentation: ${appUrl}/swagger`);
 
   return app;
 }

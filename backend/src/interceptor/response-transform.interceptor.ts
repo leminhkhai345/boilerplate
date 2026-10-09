@@ -19,9 +19,10 @@ export interface SuccessResponse<T> {
 }
 
 @Injectable()
-export class ResponseTransformInterceptor<T>
-  implements NestInterceptor<T, SuccessResponse<T> | T>
-{
+export class ResponseTransformInterceptor<T> implements NestInterceptor<
+  T,
+  SuccessResponse<T> | T
+> {
   constructor(private readonly reflector: Reflector) {}
 
   intercept(
@@ -103,4 +104,3 @@ export class ResponseTransformInterceptor<T>
     );
   }
 }
-

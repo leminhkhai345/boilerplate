@@ -46,9 +46,7 @@ export class LoggingExceptionFilter implements ExceptionFilter {
     if (exception instanceof BaseException) {
       status = exception.statusCode || HttpStatus.BAD_REQUEST;
       code =
-        exception.code ||
-        HTTP_STATUS_TO_DEFAULT_CODE[status] ||
-        'BAD REQUEST';
+        exception.code || HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD REQUEST';
       logMessage = `[DomainException] ${exception.name} (${status}) [${code}]: ${exception.message}`;
       this.logger.warn(`${logMessage} - Path: ${request.url}`);
     }
@@ -57,10 +55,7 @@ export class LoggingExceptionFilter implements ExceptionFilter {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
 
-      if (
-        typeof exceptionResponse === 'object' &&
-        exceptionResponse !== null
-      ) {
+      if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         const resObj = exceptionResponse as Record<string, any>;
 
         // Handle ValidationPipe errors -> map to 422 VALIDATION FAILED
