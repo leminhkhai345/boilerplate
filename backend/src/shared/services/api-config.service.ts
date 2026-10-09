@@ -5,6 +5,14 @@ import { ConfigService } from '@nestjs/config';
 export class ApiConfigService {
   constructor(private readonly configService: ConfigService) {}
 
+  get appName(): string {
+    return this.getString('APP_NAME', 'MyApp');
+  }
+
+  get rabbitMqUrl(): string {
+    return this.getString('RABBITMQ_URL', 'amqp://localhost:5672');
+  }
+
   get apiDomain(): string {
     return this.getString('API_DOMAIN', 'localhost');
   }

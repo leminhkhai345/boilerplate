@@ -2,6 +2,7 @@ import { Global, Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { ApiConfigService } from './services/api-config.service';
 import { TypeormModule } from './infra/typeorm/typeorm.module';
+import { RabbitmqModule } from './infra/rabbitmq/rabbitmq.module';
 
 @Global()
 @Module({
@@ -11,8 +12,9 @@ import { TypeormModule } from './infra/typeorm/typeorm.module';
       envFilePath: '.env',
     }),
     TypeormModule,
+    RabbitmqModule,
   ],
   providers: [ApiConfigService],
-  exports: [ApiConfigService, TypeormModule],
+  exports: [ApiConfigService, TypeormModule, RabbitmqModule],
 })
 export class SharedModule {}
