@@ -19,14 +19,14 @@ interface ErrorResponsePayload {
 }
 
 const HTTP_STATUS_TO_DEFAULT_CODE: Record<number, string> = {
-  [HttpStatus.BAD_REQUEST]: 'BAD REQUEST',
-  [HttpStatus.UNAUTHORIZED]: 'INVALID TOKEN',
+  [HttpStatus.BAD_REQUEST]: 'BAD_REQUEST',
+  [HttpStatus.UNAUTHORIZED]: 'INVALID_TOKEN',
   [HttpStatus.FORBIDDEN]: 'FORBIDDEN',
-  [HttpStatus.NOT_FOUND]: 'NOT FOUND',
+  [HttpStatus.NOT_FOUND]: 'NOT_FOUND',
   [HttpStatus.CONFLICT]: 'CONFLICT',
-  [HttpStatus.UNPROCESSABLE_ENTITY]: 'VALIDATION FAILED',
-  [HttpStatus.TOO_MANY_REQUESTS]: 'RATE LIMIT EXCEEDED',
-  [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL ERROR',
+  [HttpStatus.UNPROCESSABLE_ENTITY]: 'VALIDATION_FAILED',
+  [HttpStatus.TOO_MANY_REQUESTS]: 'RATE_LIMIT_EXCEEDED',
+  [HttpStatus.INTERNAL_SERVER_ERROR]: 'INTERNAL_ERROR',
 };
 
 @Catch()
@@ -39,14 +39,14 @@ export class LoggingExceptionFilter implements ExceptionFilter {
     const request = ctx.getRequest<Request>();
 
     let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let code = 'INTERNAL ERROR';
+    let code = 'INTERNAL_ERROR';
     let logMessage = 'Internal server error';
 
     // 1. Domain Exceptions (Clean Architecture BaseException)
     if (exception instanceof BaseException) {
       status = exception.statusCode || HttpStatus.BAD_REQUEST;
       code =
-        exception.code || HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD REQUEST';
+        exception.code || HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD_REQUEST';
       logMessage = `[DomainException] ${exception.name} (${status}) [${code}]: ${exception.message}`;
       this.logger.warn(`${logMessage} - Path: ${request.url}`);
     }
@@ -58,23 +58,23 @@ export class LoggingExceptionFilter implements ExceptionFilter {
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         const resObj = exceptionResponse as Record<string, any>;
 
-        // Handle ValidationPipe errors -> map to 422 VALIDATION FAILED
+        // Handle ValidationPipe errors -> map to 422 VALIDATION_FAILED
         if (
           status === HttpStatus.UNPROCESSABLE_ENTITY ||
           (status === HttpStatus.BAD_REQUEST && Array.isArray(resObj.message))
         ) {
           status = HttpStatus.UNPROCESSABLE_ENTITY;
-          code = 'VALIDATION FAILED';
+          code = 'VALIDATION_FAILED';
           logMessage = `[ValidationException] (${status}) [${code}]: ${JSON.stringify(resObj.message)}`;
         } else if (resObj.code && typeof resObj.code === 'string') {
           code = resObj.code;
           logMessage = `[HttpException] ${exception.name} (${status}) [${code}]: ${resObj.message || exception.message}`;
         } else {
-          code = HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD REQUEST';
+          code = HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD_REQUEST';
           logMessage = `[HttpException] ${exception.name} (${status}) [${code}]: ${resObj.message || exception.message}`;
         }
       } else {
-        code = HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD REQUEST';
+        code = HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD_REQUEST';
         logMessage = `[HttpException] ${exception.name} (${status}) [${code}]: ${String(exceptionResponse)}`;
       }
 
@@ -83,14 +83,14 @@ export class LoggingExceptionFilter implements ExceptionFilter {
     // 3. Unhandled Standard Errors & Unknown Exceptions
     else if (exception instanceof Error) {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      code = 'INTERNAL ERROR';
+      code = 'INTERNAL_ERROR';
       this.logger.error(
         `[UnhandledException] ${exception.message} - Path: ${request.url}`,
         exception.stack,
       );
     } else {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
-      code = 'INTERNAL ERROR';
+      code = 'INTERNAL_ERROR';
       this.logger.error(
         `[UnknownException] ${String(exception)} - Path: ${request.url}`,
       );

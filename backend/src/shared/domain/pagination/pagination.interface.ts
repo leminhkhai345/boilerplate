@@ -1,8 +1,16 @@
 export type PaginationType = 'offset' | 'cursor';
 
-export interface OffsetPaginationOptions {
+export type SortOrder = 'asc' | 'desc';
+
+export type ExportFormat = 'json' | 'xlsx' | 'csv' | 'pdf';
+
+export interface OffsetPaginationOptions<TFilter = Record<string, unknown>> {
   pageNo: number;
   pageSize: number;
+  sort?: string;
+  order?: SortOrder;
+  filter?: TFilter;
+  format?: ExportFormat;
 }
 
 export interface OffsetPaginationMetadata {
@@ -21,9 +29,13 @@ export interface PaginatedResult<T> {
   items?: T[];
 }
 
-export interface CursorPaginationOptions {
+export interface CursorPaginationOptions<TFilter = Record<string, unknown>> {
   cursor?: string | null;
   pageSize: number;
+  sort?: string;
+  order?: SortOrder;
+  filter?: TFilter;
+  format?: ExportFormat;
 }
 
 export interface CursorPaginationMetadata {
@@ -41,5 +53,6 @@ export interface CursorPaginatedResult<T> {
 export type PaginationMetadata =
   OffsetPaginationMetadata | CursorPaginationMetadata;
 
-export type PaginationOptions = OffsetPaginationOptions;
+export type PaginationOptions<TFilter = Record<string, unknown>> =
+  OffsetPaginationOptions<TFilter>;
 export type PaginationResult<T> = PaginatedResult<T>;

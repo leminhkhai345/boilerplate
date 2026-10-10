@@ -10,10 +10,7 @@ import {
   OffsetPaginationOptions,
   PaginatedResult,
 } from 'shared/domain/pagination/pagination.interface';
-import {
-  createOffsetPaginationResult,
-  paginate,
-} from 'shared/infra/typeorm/pagination.helper';
+import { TypeOrmPaginator } from 'shared/infra/typeorm/pagination.helper';
 
 @Injectable()
 export class TypeOrmSampleRepository implements SampleRepository {
@@ -50,14 +47,16 @@ export class TypeOrmSampleRepository implements SampleRepository {
   ): Promise<PaginatedResult<SampleEntity>> {
     const qb = this.repository
       .createQueryBuilder('sample')
-      .where('sample.isDeleted = :isDeleted', { isDeleted: false })
-      .orderBy('sample.createdAt', 'DESC');
+      .where('sample.isDeleted = :isDeleted', { isDeleted: false });
 
-    const { data, totalItems } = await paginate(qb, options);
-
-    return createOffsetPaginationResult(data, totalItems, options, (raw) =>
-      SampleMapper.toDomain(raw),
-    );
+    return TypeOrmPaginator.offset(qb, options)
+      .withSort({
+        whitelist: ['createdAt', 'title'],
+        defaultSort: 'createdAt',
+        defaultOrder: 'desc',
+        alias: 'sample',
+      })
+      .paginate((raw) => SampleMapper.toDomain(raw));
   }
 
   async delete(id: Uuid): Promise<void> {
