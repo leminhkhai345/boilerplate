@@ -1,7 +1,6 @@
-import { Controller, Get, HttpCode, HttpStatus, Res } from '@nestjs/common';
+import { Controller, Get, HttpCode, HttpStatus } from '@nestjs/common';
 import { QueryBus } from '@nestjs/cqrs';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Response } from 'express';
 import { ResponseCode } from 'shared/decorators/response-code.decorator';
 import { GetHealthQuery } from '../../use-case/queries/get-health.query';
 import { HealthEntity } from '../../domain/entities/health.entity';
@@ -21,20 +20,10 @@ export class HealthController {
     description: 'Service is healthy',
     type: HealthResponseDto,
   })
-  @ApiResponse({
-    status: 503,
-    description: 'Service is unhealthy (e.g. database down)',
-  })
-  async check(
-    @Res({ passthrough: true }) response: Response,
-  ): Promise<HealthResponseDto> {
+  async check(): Promise<HealthResponseDto> {
     const health: HealthEntity = await this.queryBus.execute(
       new GetHealthQuery(),
     );
-
-    if (!health.isHealthy) {
-      response.status(HttpStatus.SERVICE_UNAVAILABLE);
-    }
 
     return HealthResponseDto.fromDomain(health);
   }

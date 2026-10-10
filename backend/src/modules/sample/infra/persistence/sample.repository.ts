@@ -10,7 +10,7 @@ import {
   OffsetPaginationOptions,
   PaginatedResult,
 } from 'shared/domain/pagination/pagination.interface';
-import { TypeOrmPaginator } from 'shared/infra/typeorm/pagination.helper';
+import { TypeOrmPaginator } from 'shared/infra/typeorm/pagination';
 
 @Injectable()
 export class TypeOrmSampleRepository implements SampleRepository {

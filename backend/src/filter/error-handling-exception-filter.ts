@@ -38,22 +38,22 @@ export class LoggingExceptionFilter implements ExceptionFilter {
     const response = ctx.getResponse<Response>();
     const request = ctx.getRequest<Request>();
 
-    let status = HttpStatus.INTERNAL_SERVER_ERROR;
-    let code = 'INTERNAL_ERROR';
-    let logMessage = 'Internal server error';
+    let status: number;
+    let code: string;
 
     // 1. Domain Exceptions (Clean Architecture BaseException)
     if (exception instanceof BaseException) {
       status = exception.statusCode || HttpStatus.BAD_REQUEST;
       code =
         exception.code || HTTP_STATUS_TO_DEFAULT_CODE[status] || 'BAD_REQUEST';
-      logMessage = `[DomainException] ${exception.name} (${status}) [${code}]: ${exception.message}`;
+      const logMessage = `[DomainException] ${exception.name} (${status}) [${code}]: ${exception.message}`;
       this.logger.warn(`${logMessage} - Path: ${request.url}`);
     }
     // 2. NestJS HttpExceptions (ValidationPipe, NotFoundException, etc.)
     else if (exception instanceof HttpException) {
       status = exception.getStatus();
       const exceptionResponse = exception.getResponse();
+      let logMessage: string;
 
       if (typeof exceptionResponse === 'object' && exceptionResponse !== null) {
         const resObj = exceptionResponse as Record<string, any>;
