@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { OffsetPaginationMetadata } from 'shared/domain/pagination/pagination.interface';
+import { IOffsetPaginationDto } from '../../domain/pagination/i-offset-pagination.dto';
 
-export class OffsetPaginationDto implements OffsetPaginationMetadata {
+export class OffsetPaginationDto implements OffsetPaginationDto {
   @ApiProperty({
     example: 'offset',
     description: 'Discriminator phân loại kiểu phân trang',

@@ -10,21 +10,21 @@ import {
   Max,
   Min,
 } from 'class-validator';
-import {
-  CursorPaginationOptions,
-  SortOrder,
-} from 'shared/domain/pagination/pagination.interface';
+import { SortOrder } from '../../domain/value-objects/sort-order.vo';
 
-export class CursorPaginationQueryRequest<
+export class OffsetPaginationQueryRequestDto<
   TFilter = Record<string, unknown>,
-> implements CursorPaginationOptions<TFilter> {
+> implements OffsetPaginationQueryRequestDto<TFilter> {
   @ApiPropertyOptional({
-    description:
-      'Opaque cursor do server cấp từ pagination.nextCursor của response trước. Không gửi ở trang đầu.',
+    description: 'Số nguyên dương, bắt đầu từ 1',
+    default: 1,
+    minimum: 1,
   })
   @IsOptional()
-  @IsString()
-  cursor?: string;
+  @Type(() => Number)
+  @IsInt()
+  @Min(1)
+  pageNo: number = 1;
 
   @ApiPropertyOptional({
     description: 'Số nguyên dương, tối đa 100',
@@ -64,7 +64,7 @@ export class CursorPaginationQueryRequest<
 
   @ApiPropertyOptional({
     description:
-      'Object có field được endpoint cho phép, serialized theo OpenAPI deepObject',
+      'Object có field được endpoint cho phép, serialized theo OpenAPI deepObject (ví dụ: filter[status]=available)',
     type: Object,
   })
   @IsOptional()

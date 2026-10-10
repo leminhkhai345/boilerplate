@@ -6,11 +6,9 @@ import { SampleEntity } from '../../domain/entities/sample.entity';
 import { SampleTypeormEntity } from './sample.typeorm-entity';
 import { SampleMapper } from '../mappers/sample.mapper';
 import { Uuid } from 'shared/domain/value-objects/uuid.vo';
-import {
-  OffsetPaginationOptions,
-  PaginatedResult,
-} from 'shared/domain/pagination/pagination.interface';
-import { TypeOrmPaginator } from 'shared/infra/typeorm/pagination';
+import { IOffsetPaginationQueryRequestDto } from '../../../../shared/domain/pagination/i-offset-pagination.query.request.dto';
+import { IPaginationResponseDto } from '../../../../shared/domain/pagination/i-pagination.response.dto';
+import { TypeOrmPaginator } from '../../../../shared/infra/typeorm/pagination/typeorm.paginator';
 
 @Injectable()
 export class TypeOrmSampleRepository implements SampleRepository {
@@ -43,8 +41,8 @@ export class TypeOrmSampleRepository implements SampleRepository {
   }
 
   async findPaginated(
-    options: OffsetPaginationOptions,
-  ): Promise<PaginatedResult<SampleEntity>> {
+    options: IOffsetPaginationQueryRequestDto,
+  ): Promise<IPaginationResponseDto<SampleEntity>> {
     const qb = this.repository
       .createQueryBuilder('sample')
       .where('sample.isDeleted = :isDeleted', { isDeleted: false });

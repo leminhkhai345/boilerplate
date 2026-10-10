@@ -1,22 +1,20 @@
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
-import {
-  OffsetPaginationMetadata,
-  OffsetPaginationOptions,
-  PaginatedResult,
-} from 'shared/domain/pagination/pagination.interface';
 import { applySortingToQueryBuilder, SortOptionConfig } from './sort.helper';
+import { IOffsetPaginationQueryRequestDto } from '../../../domain/pagination/i-offset-pagination.query.request.dto';
+import { PaginatedResponseDto } from '../../../presentation/pagination/paginated.response.dto';
+import { IOffsetPaginationDto } from '../../../domain/pagination/i-offset-pagination.dto';
 
 export class TypeOrmOffsetPaginator<TEntity extends ObjectLiteral> {
   private sortConfig?: SortOptionConfig;
 
   constructor(
     private readonly queryBuilder: SelectQueryBuilder<TEntity>,
-    private readonly options: OffsetPaginationOptions,
+    private readonly options: IOffsetPaginationQueryRequestDto,
   ) {}
 
   public static of<TEntity extends ObjectLiteral>(
     queryBuilder: SelectQueryBuilder<TEntity>,
-    options: OffsetPaginationOptions,
+    options: IOffsetPaginationQueryRequestDto,
   ): TypeOrmOffsetPaginator<TEntity> {
     return new TypeOrmOffsetPaginator(queryBuilder, options);
   }
@@ -28,7 +26,7 @@ export class TypeOrmOffsetPaginator<TEntity extends ObjectLiteral> {
 
   public async paginate<TDomain = TEntity>(
     mapper?: (raw: TEntity) => TDomain,
-  ): Promise<PaginatedResult<TDomain>> {
+  ): Promise<PaginatedResponseDto<TDomain>> {
     if (this.sortConfig) {
       applySortingToQueryBuilder(
         this.queryBuilder,
@@ -51,7 +49,7 @@ export class TypeOrmOffsetPaginator<TEntity extends ObjectLiteral> {
       ? records.map(mapper)
       : (records as unknown as TDomain[]);
 
-    const pagination: OffsetPaginationMetadata = {
+    const pagination: IOffsetPaginationDto = {
       type: 'offset',
       pageNo,
       pageSize,
@@ -63,7 +61,6 @@ export class TypeOrmOffsetPaginator<TEntity extends ObjectLiteral> {
 
     return {
       data,
-      items: data,
       pagination,
     };
   }

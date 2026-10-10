@@ -1,6 +1,6 @@
 import { ObjectLiteral, SelectQueryBuilder } from 'typeorm';
-import { SortOrder } from 'shared/domain/pagination/pagination.interface';
 import { ValidationException } from 'shared/domain/exceptions/validation.exception';
+import { SortOrder } from '../../../domain/value-objects/sort-order.vo';
 
 export interface SortOptionConfig {
   whitelist: string[];
@@ -10,9 +10,6 @@ export interface SortOptionConfig {
   alias?: string;
 }
 
-/**
- * Áp dụng sorting theo §11 api-conventions.md
- */
 export function applySortingToQueryBuilder<T extends ObjectLiteral>(
   queryBuilder: SelectQueryBuilder<T>,
   options: { sort?: string; order?: SortOrder },
